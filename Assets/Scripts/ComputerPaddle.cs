@@ -21,8 +21,17 @@ public class ComputerPaddle : Paddle
                 _rigidbody.AddForce(Vector2.up * this.paddleSpeed);
             }
         }
-
-
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/colwall", 1);
+        }
+        else if (collision.gameObject.CompareTag("Ball"))
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/colball", 1);
+        }
+    }
 }

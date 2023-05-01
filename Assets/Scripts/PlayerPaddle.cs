@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,9 +10,9 @@ public class PlayerPaddle : Paddle
 {
     private Vector2 _direction;
     
-    //************* Need to setup this server dictionary...
-    Dictionary<string, ServerLog> servers = new Dictionary<string, ServerLog> ();
-    //*************
+    // //************* Need to setup this server dictionary...
+    // Dictionary<string, ServerLog> servers = new Dictionary<string, ServerLog> ();
+    // //*************
     
     // Use this for initialization
     void Start () 
@@ -26,15 +27,9 @@ public class PlayerPaddle : Paddle
 
     private void Update() {
         if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
-            //************* Send the message to the client...
-            OSCHandler.Instance.SendMessageToClient ("pd", "/unity/trigger", 100);
-            //*************
             _direction = Vector2.up;
         } else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) {
             _direction = Vector2.down;
-            //************* Send the message to the client...
-            OSCHandler.Instance.SendMessageToClient ("pd", "/unity/trigger", 5);
-            //*************
         } else {
             _direction = Vector2.zero;
         }
@@ -43,6 +38,18 @@ public class PlayerPaddle : Paddle
     private void FixedUpdate() {
         if(_direction.sqrMagnitude != 0) {
             _rigidbody.AddForce(_direction * this.paddleSpeed);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/colwall", 1);
+        }
+        else if (collision.gameObject.CompareTag("Ball"))
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/colball", 1);
         }
     }
 }
