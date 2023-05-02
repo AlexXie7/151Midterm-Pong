@@ -15,7 +15,12 @@ public class GameManager : MonoBehaviour
     public TMP_Text PlayerScore;
     public TMP_Text ComputerScore;
     public TMP_Text StreakScore;
-    
+
+    private void Start()
+    {
+        OSCHandler.Instance.SendMessageToClient("pd", "/unity/reset", 0);
+    }
+
     public void PlayerScores(){
         OSCHandler.Instance.SendMessageToClient("pd", "/unity/colgoal", 1);
         
@@ -24,7 +29,7 @@ public class GameManager : MonoBehaviour
         this.ball.ResetBall();
 
         _streak += 1;
-        StreakScore.text = "Streak:" + _streak.ToString();
+        StreakScore.text = "Streak: " + _streak.ToString();
     }
 
     public void ComputerScores(){
@@ -33,23 +38,50 @@ public class GameManager : MonoBehaviour
         _computerScore++;
         ComputerScore.text = _computerScore.ToString();
         this.ball.ResetBall();
-
-        if (_streak > 0)
-        {
-            _streak -= 1;
-        }
-        StreakScore.text = "Streak:" + _streak.ToString();
+        
+        _streak -= 1;
+        StreakScore.text = "Streak: " + _streak.ToString();
     }
 
     private void Update()
     {
-        if (_streak < 0)
+        if (_streak == 0)
         {
-            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 500);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 0);
         }
-        else
+        
+        // Lower bpm when streak is less than 0
+        else if (_streak == -1)
         {
-            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 1);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 80);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", -20);
+        }
+        else if (_streak == -2)
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 100);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", -30);
+        }
+        else if (_streak == -3)
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 120);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", -40);
+        }
+
+        // Up bpm when streak is greater than 0
+        else if (_streak == 1)
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 80);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 20);
+        }
+        else if (_streak == 2)
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 100);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 30);
+        }
+        else if (_streak >= 3)
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/bpm", 120);
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/streak", 40);
         }
     }
 }

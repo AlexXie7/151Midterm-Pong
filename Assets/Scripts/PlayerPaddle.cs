@@ -51,5 +51,9 @@ public class PlayerPaddle : Paddle
         {
             OSCHandler.Instance.SendMessageToClient("pd", "/unity/colball", 1);
         }
+        else if (collision.gameObject.CompareTag("Goal"))
+        {
+            OSCHandler.Instance.SendMessageToClient("pd", "/unity/colgoal", 1);
+        }
     }
 }
